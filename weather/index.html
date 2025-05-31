@@ -65,8 +65,9 @@
     .weather .content .description {
       
     }
-    .weather .content img {
-
+    .weather .content .weather-icon {
+      margin-right: 0;
+      font-size: 3rem;
     }
     .weather .content .temp {
       font-size: 4rem;
@@ -154,7 +155,7 @@
         <div class="content">
           <h2 class="city">{{ weather.name }}</h2>
           <p class="description">{{ weather.weather[0].description }}</p>
-          <img :src="weatherIcon" alt="날씨 아이콘" />
+          <span class="material-symbols-outlined weather-icon">{{ getWeatherIcon(weather.weather[0].icon) }}</span>
 
           <p class="temp">{{ weather.main.temp }}°</p>
           <p class="temp-min-max">
@@ -193,7 +194,6 @@
       setup() {
         const apiKey = '84c184d4d265556e18832eaf140f200d';
         const weather = ref(null);
-        const weatherIcon = ref('');
         const currentDate = ref('');
         const error = ref('');
 
@@ -250,11 +250,44 @@
             if (!res.ok) throw new Error('날씨 정보를 불러올 수 없습니다.');
             const data = await res.json();
             weather.value = data;
-            weatherIcon.value = 'https://openweathermap.org/img/wn/' + data.weather[0].icon + '.png'
           } catch (err) {
             error.value = err.message;
           }
         };
+
+        // 날씨 아이콘 
+        // 아이콘 코드	설명 (주간/야간)	예시
+        // 01d / 01n	맑음 (clear sky)	☀️ / 🌙
+        // 02d / 02n	약간의 구름 (few clouds)	🌤️ / 🌥️
+        // 03d / 03n	흩어진 구름 (scattered clouds)	☁️
+        // 04d / 04n	구름 많음 (broken clouds)	☁️☁️
+        // 09d / 09n	소나기 (shower rain)	🌧️
+        // 10d / 10n	비 (rain)	🌦️
+        // 11d / 11n	천둥번개 (thunderstorm)	⛈️
+        // 13d / 13n	눈 (snow)	🌨️
+        // 50d / 50n	안개 (mist)	🌫️
+        const getWeatherIcon = (weatherIcon) => {
+          switch (weatherIcon) {
+            case '01d','01n': 
+              return 'sunny'; break;
+            case '02d': 
+              return 'partly_cloudy_day'; break;
+            case '02n': 
+              return 'partly_cloudy_night'; break;
+            case  '03d','03n', '04d', '04n':
+              return 'cloud'; break;
+            case  '09d','09n':
+              return 'rainy_light'; break;
+            case  '10d','10n':
+              return 'rainy'; break; 
+            case  '11d','11d':
+              return 'thunderstorm'; break;   
+            case  '13d','13n':
+              return 'weather_snowy'; break; 
+            case  '50d','50n':
+              return 'foggy'; break; 
+          }
+        }
 
         // 위치 값 비교
         const coordsEqual = (a, b) => {
@@ -313,10 +346,10 @@
 
         return {
           weather,
-          weatherIcon,
           error,
           currentDate,
           formatTime,
+          getWeatherIcon,
           getTimePeriodKey,
           getCurrentLocation,
         };
