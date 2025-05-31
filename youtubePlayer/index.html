@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎵 YouTube Music App</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #f0f0f0;
+    }
+    .app {
+      max-width: 800px;
+      margin: auto;
+    }
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    input {
+      flex: 1;
+      padding: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+    }
+    .video-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .video-item {
+      display: flex;
+      gap: 1rem;
+      background: white;
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+    .video-item img {
+      width: 120px;
+    }
+    iframe {
+      width: 100%;
+      height: 360px;
+      margin-top: 1rem;
+    }
+    @media (max-width: 600px) {
+      .video-item {
+        flex-direction: column;
+        align-items: center;
+      }
+      .video-item img {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app">
+    <h1>🎶 YouTube 뮤직 앱</h1>
+    <div class="search-box">
+      <input type="text" v-model="query" placeholder="노래 제목 또는 아티스트 입력" @keyup.enter="searchVideos" />
+      <button @click="searchVideos">검색</button>
+    </div>
+
+    <div v-if="videos.length > 0">
+      <iframe v-if="selectedVideoId"
+              :src="'https://www.youtube.com/embed/' + selectedVideoId"
+              frameborder="0"
+              allowfullscreen></iframe>
+
+      <div class="video-list">
+        <div class="video-item" v-for="video in videos" :key="video.id.videoId" @click="playVideo(video.id.videoId)">
+          <img :src="video.snippet.thumbnails.default.url" />
+          <div>
+            <h3>{{ video.snippet.title }}</h3>
+            <p>{{ video.snippet.channelTitle }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else-if="searched">검색 결과가 없습니다.</div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          apiKey: 'AIzaSyBwwti3omYcISNFOlyy_0eB04Ah6z9FrPA',
+          query: '',
+          videos: [],
+          selectedVideoId: null,
+          searched: false
+        };
+      },
+      methods: {
+        async searchVideos() {
+          if (!this.query.trim()) return;
+
+          const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(this.query)}&key=${this.apiKey}`;
+          try {
+            const res = await fetch(url);
+            const json = await res.json();
+            this.videos = json.items;
+            this.selectedVideoId = this.videos[0]?.id.videoId || null;
+            this.searched = true;
+          } catch (error) {
+            alert('검색 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        },
+        playVideo(videoId) {
+          this.selectedVideoId = videoId;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
