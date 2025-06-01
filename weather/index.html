@@ -1,360 +1,218 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>날씨 앱</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>날씨 앱</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
 
-  <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
-  <style>
-    * { margin: 0; padding: 0; }
-    body {
-      /* font-family: 'Arial', sans-serif; */
-      font-family: "Outfit", sans-serif;
-      font-optical-sizing: auto;
-      font-weight: 500;
-      font-style: normal;
-    }
-    main {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100vh;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-    .bg-morning {
-      background: linear-gradient(to bottom, #FFFAE3, #CFE9F1);
-    }
-    .bg-afternoon {
-      background: linear-gradient(to bottom, #AEE9F5, #E6F7FF);
-    }
-    .bg-evening {
-      background: linear-gradient(to bottom, #FDB99B, #C06C84);
-      color: #fff;
-    }
-    .bg-night {
-      background: linear-gradient(to bottom, #1B263B, #2C3E50);
-      color: #fff;
-    }
-    
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-direction: row-reverse;
-    }
-    .weather {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      height: 100%;
-      text-align: center;
-    }
-    .weather .content {
-
-    }
-    .weather .content .city {
-      font-size: 2rem;
-    }
-    .weather .content .description {
-      
-    }
-    .weather .content .weather-icon {
-      margin-right: 0;
-      font-size: 3rem;
-    }
-    .weather .content .temp {
-      font-size: 4rem;
-      font-weight: 800;
-      padding-top: 1rem;
-    }
-    .weather .content .temp-min-max span {
-      margin-right: 0;
-    }
-    .weather .content .humidity {
-     padding-top: 1rem;
-    }
-    .bg-morning .humidity span {
-       color: #00BCD4;
-    }
-    .bg-afternoon .humidity span {
-       color: #00BCD4;
-    }
-    .bg-evening .humidity span {
-      color: #fff;
-    }
-    .bg-night .humidity span {
-      color: #00BCD4;
-    }
-    .weather p {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .weather .bottom {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-    .weather .bottom p {
-      display: flex;
-      align-items: center;
-    }
-    .material-symbols-outlined {
-      margin-right: 10px;
-    }
-    
-    /* animiation */
-    .temp-max {
-      animation: move-up 2s linear infinite;
-    }
-    .temp-min {
-      animation: move-down 2s linear infinite;
-    }
-    .sunrise {
-      animation: sunrise 3s linear infinite;
-    }
-    .sunset {
-      position: relative;
-      animation: sunset 3s linear infinite;
-      transition: 1s;
-    }
-    @keyframes move-up {
-      0% { transform: translateY(0);}
-      100% { transform: translateY(-5px)}
-    }
-    @keyframes move-down {
-      0% { transform: translateY(0);}
-      100% { transform: translateY(5px);}
-    }
-    @keyframes sunrise {
-      0% { transform: rotate(0);}
-      100% { transform: rotate(360deg);}
-    }
-    @keyframes sunset {
-      0% { opacity: 1;}
-      100% { opacity: 0;}
-    }
-  </style>
-</head>
-<body>
-  <div id="app" class="app">
-    <main :class="`bg-${getTimePeriodKey()}`">
-      <header>
-        <h1>W</h1>
-        <span>{{ currentDate }}</span>
-      </header>
-   
-      <section v-if="weather" class="weather">
-        <div class="content">
-          <h2 class="city">{{ weather.name }}</h2>
-          <p class="description">{{ weather.weather[0].description }}</p>
-          <span class="material-symbols-outlined weather-icon">{{ getWeatherIcon(weather.weather[0].icon) }}</span>
-
-          <p class="temp">{{ weather.main.temp }}°</p>
-          <p class="temp-min-max">
-            <span class="material-symbols-outlined temp-max">arrow_drop_up</span> {{weather.main.temp_max}}° / 
-            <span class="material-symbols-outlined temp-min">arrow_drop_down</span> {{weather.main.temp_min}}°
-          </p>
-         
-          <p class="humidity">
-            <span class="material-symbols-outlined">humidity_high</span> 
-            {{ weather.main.humidity }}%
-          </p>
-        </div>
-
-        <div class="bottom">
-          <p>
-            <span class="material-symbols-outlined sunrise">clear_day</span>  
-            {{ formatTime(weather.sys.sunrise) }}
-          </p>
-          <p>
-            <span class="material-symbols-outlined sunset">wb_twilight</span>  
-            {{ formatTime(weather.sys.sunset) }}
-          </p>
-        </div>
-      </section>
-
-      <section v-else>
-        <p v-if="error" style="color: red;">{{ error }}</p>
-      </section>  
-    </main>
-  </div>
-
-  <script>
-    const { createApp, ref, watch, onMounted  } = Vue;
-
-    createApp({
-      setup() {
-        const apiKey = '84c184d4d265556e18832eaf140f200d';
-        const weather = ref(null);
-        const currentDate = ref('');
-        const error = ref('');
-
-        const formatDate = () => {
-          const date = new Date();
-          return date.toLocaleString("ko-KR", {  
-            timeZone: "Asia/Seoul",
-            year: "2-digit",
-            month: "2-digit",
-            day: "numeric",
-            weekday: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false
-          })
-        }
-
-        const formatTime = (dt) => {
-          const date = new Date(dt * 1000);
-          return date.toLocaleString("ko-KR", {  
-            timeZone: "Asia/Seoul",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false
-          })
-        }
-        
-        setInterval(() =>{
-          currentDate.value = formatDate();
-        }, 1000)
-
-        const getTimePeriodKey = () => {
-          const date = new Date();
-          const hours = date.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", hour12: false });
-          const h = parseInt(hours, 10);
-          console.log('시간', h)
-
-          if (h >= 5 && h < 12) return "morning";
-          if (h >= 12 && h < 17) return "afternoon";
-          if (h >= 17 && h < 21) return "evening";
-          return "night";
-        }
-
-        // 현재 위치 날씨 api 불러오기
-        const fetchWeather = async (coords) => {
-          error.value = '';
-          weather.value = null;
-          try {
-            const { latitude, longitude } = coords;
-            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=kr&appid=${apiKey}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('날씨 정보를 불러올 수 없습니다.');
-            const data = await res.json();
-            weather.value = data;
-          } catch (err) {
-            error.value = err.message;
-          }
-        };
-
-        // 날씨 아이콘 
-        // 아이콘 코드	설명 (주간/야간)	예시
-        // 01d / 01n	맑음 (clear sky)	☀️ / 🌙
-        // 02d / 02n	약간의 구름 (few clouds)	🌤️ / 🌥️
-        // 03d / 03n	흩어진 구름 (scattered clouds)	☁️
-        // 04d / 04n	구름 많음 (broken clouds)	☁️☁️
-        // 09d / 09n	소나기 (shower rain)	🌧️
-        // 10d / 10n	비 (rain)	🌦️
-        // 11d / 11n	천둥번개 (thunderstorm)	⛈️
-        // 13d / 13n	눈 (snow)	🌨️
-        // 50d / 50n	안개 (mist)	🌫️
-        const getWeatherIcon = (weatherIcon) => {
-          switch (weatherIcon) {
-            case '01d','01n': 
-              return 'sunny'; break;
-            case '02d': 
-              return 'partly_cloudy_day'; break;
-            case '02n': 
-              return 'partly_cloudy_night'; break;
-            case  '03d','03n', '04d', '04n':
-              return 'cloud'; break;
-            case  '09d','09n':
-              return 'rainy_light'; break;
-            case  '10d','10n':
-              return 'rainy'; break; 
-            case  '11d','11d':
-              return 'thunderstorm'; break;   
-            case  '13d','13n':
-              return 'weather_snowy'; break; 
-            case  '50d','50n':
-              return 'foggy'; break; 
-          }
-        }
-
-        // 위치 값 비교
-        const coordsEqual = (a, b) => {
-          if (!a || !b) return false;
-          return (
-            Math.abs(a.latitude - b.latitude) < 0.0001 &&
-            Math.abs(a.longitude - b.longitude) < 0.0001
-          );
-        };
-
-        // 현재 위치 날씨
-        const getCurrentLocation = () => {
-          error.value = '';
-          const saved = localStorage.getItem('coords');
-          console.log('saved', saved)
-          let cachedCoords = null;
-
-          try {
-            cachedCoords = saved ? JSON.parse(saved) : null;
-            if( cachedCoords ) {
-               fetchWeather(cachedCoords);
-               return;
+        <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
             }
-          } catch (e) {
-            localStorage.removeItem('coords');
-          }
+            body {
+                /* font-family: 'Arial', sans-serif; */
+                font-family: "Outfit", sans-serif;
+                font-optical-sizing: auto;
+                font-weight: 500;
+                font-style: normal;
+            }
+            main {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 100vh;
+                padding: 1rem;
+                box-sizing: border-box;
+            }
+            .bg-morning {
+                background: linear-gradient(to bottom, #fffae3, #cfe9f1);
+            }
+            .bg-afternoon {
+                background: linear-gradient(to bottom, #aee9f5, #e6f7ff);
+            }
+            .bg-evening {
+                background: linear-gradient(to bottom, #fdb99b, #c06c84);
+                color: #fff;
+            }
+            .bg-night {
+                background: linear-gradient(to bottom, #1b263b, #2c3e50);
+                color: #fff;
+            }
 
-          if (!navigator.geolocation) {
-            error.value = '위치 정보를 지원하지 않는 브라우저입니다.';
-          } else {
-            console.log('새로 조회')
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                const newCoords = {
-                  latitude: pos.coords.latitude,
-                  longitude: pos.coords.longitude
-                };
-                if (!coordsEqual(cachedCoords, newCoords)) {
-                  localStorage.setItem('coords', JSON.stringify(newCoords));
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-direction: row-reverse;
+            }
+            .weather {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                height: 100%;
+                text-align: center;
+            }
+            .weather .content {
+            }
+            .weather .content .city {
+                font-size: 2rem;
+            }
+            .weather .content .description {
+            }
+            .weather .content .weather-icon {
+                margin-right: 0;
+                font-size: 3rem;
+            }
+            .weather .content .temp {
+                font-size: 4rem;
+                font-weight: 800;
+                padding-top: 1rem;
+            }
+            .weather .content .humidity {
+                padding-top: 1rem;
+            }
+            .bg-morning .humidity span {
+                color: #00bcd4;
+            }
+            .bg-afternoon .humidity span {
+                color: #00bcd4;
+            }
+            .bg-evening .humidity span {
+                color: #fff;
+            }
+            .bg-night .humidity span {
+                color: #00bcd4;
+            }
+            .weather p {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .weather .bottom {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+            }
+            .weather .bottom p {
+                display: flex;
+                align-items: center;
+            }
+            .material-symbols-outlined {
+                margin-right: 10px;
+            }
+
+            /* animiation */
+            .sunrise {
+                animation: sunrise 3s linear infinite;
+            }
+            .sunset {
+                position: relative;
+                animation: sunset 3s linear infinite;
+                transition: 1s;
+            }
+            @keyframes sunrise {
+                0% {
+                    transform: rotate(0);
                 }
-                fetchWeather(newCoords);
-              },
-              () => {
-                error.value = '위치 정보를 가져올 수 없습니다.';
-                if (cachedCoords) {
-                  fetchWeather(cachedCoords);
+                100% {
+                    transform: rotate(360deg);
                 }
-              }
-            );
-          }
-        };
+            }
+            @keyframes sunset {
+                0% {
+                    opacity: 1;
+                }
+                100% {
+                    opacity: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app" class="app">
+            <main :class="`bg-${getTimePeriodKey()}`">
+                <header>
+                    <h1>W</h1>
+                    <span>{{ currentDate }}</span>
+                </header>
 
-        onMounted(() => {
-          getCurrentLocation();
-        })
+                <section v-if="weather" class="weather">
+                    <div class="content">
+                        <h2 class="city">{{ weather.name }}</h2>
+                        <p class="description">{{ weather.weather[0].description }}</p>
+                        <span class="material-symbols-outlined weather-icon">{{ getWeatherIcon(weather.weather[0].icon) }}</span>
 
-        return {
-          weather,
-          error,
-          currentDate,
-          formatTime,
-          getWeatherIcon,
-          getTimePeriodKey,
-          getCurrentLocation,
-        };
-      }
-    }).mount('#app');
-  </script>
-</body>
+                        <p class="temp">{{ weather.main.temp }}°</p>
+
+                        <p class="humidity">
+                            <span class="material-symbols-outlined">humidity_high</span>
+                            {{ weather.main.humidity }}%
+                        </p>
+                    </div>
+
+                    <div class="bottom">
+                        <p>
+                            <span class="material-symbols-outlined sunrise" role="img" aria-label="일출">clear_day</span>
+                            {{ formatTime(weather.sys.sunrise) }}
+                        </p>
+                        <p>
+                            <span class="material-symbols-outlined sunset" role="img" aria-label="일몰">wb_twilight</span>
+                            {{ formatTime(weather.sys.sunset) }}
+                        </p>
+                    </div>
+                </section>
+
+                <section v-else>
+                    <p v-if="error" style="color: red">{{ error }}</p>
+                    <p v-else>날씨 정보를 불러오는 중...</p>
+                </section>
+            </main>
+        </div>
+
+        <script type="module">
+            import { useTime } from "./useTime.js";
+            import { useWeather } from "./useWeather.js";
+            const { createApp, ref, watch, onMounted } = Vue;
+
+            const { currentDate, getTimePeriodKey, formatTime } = useTime();
+            const { weather, error, getCurrentLocation, getWeatherIcon } = useWeather();
+
+            createApp({
+                setup() {
+                    // 정각 마다 날씨 갱신
+                    const scheduleNextHourlyUpdate = () => {
+                        const now = new Date();
+                        const msUntilNextHour = (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
+                        setTimeout(() => {
+                            getCurrentLocation();
+                            scheduleNextHourlyUpdate(); // 재귀 호출
+                        }, msUntilNextHour);
+                    };
+
+                    onMounted(() => {
+                        getCurrentLocation();
+                        // ⏰ 정시마다 날씨 갱신
+                        scheduleNextHourlyUpdate();
+                    });
+
+                    return {
+                        weather,
+                        error,
+                        currentDate,
+                        formatTime,
+                        getWeatherIcon,
+                        getTimePeriodKey,
+                        getCurrentLocation,
+                    };
+                },
+            }).mount("#app");
+        </script>
+    </body>
 </html>
