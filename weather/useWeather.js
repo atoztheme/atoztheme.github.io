@@ -72,38 +72,39 @@ export function useWeather() {
 
     const getCurrentLocation = () => {
         error.value = "";
-        const saved = localStorage.getItem("coords");
-        let cachedCoords = null;
+        // const saved = localStorage.getItem("coords");
+        // let cachedCoords = null;
 
-        try {
-            cachedCoords = saved ? JSON.parse(saved) : null;
-            if (cachedCoords) {
-                fetchWeather(cachedCoords);
-                return;
-            }
-        } catch {
-            localStorage.removeItem("coords");
-        }
+        // try {
+        //     cachedCoords = saved ? JSON.parse(saved) : null;
+        //     if (cachedCoords) {
+        //         fetchWeather(cachedCoords);
+        //         // return;
+        //     }
+        // } catch {
+        //     localStorage.removeItem("coords");
+        // }
 
         if (!navigator.geolocation) {
             error.value = "위치 정보를 지원하지 않는 브라우저입니다.";
         } else {
+            console.log("위치 정보를 가져오는 중...");
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     const newCoords = {
                         latitude: pos.coords.latitude,
                         longitude: pos.coords.longitude,
                     };
-                    if (!coordsEqual(cachedCoords, newCoords)) {
-                        localStorage.setItem("coords", JSON.stringify(newCoords));
-                    }
+                    // if (!coordsEqual(cachedCoords, newCoords)) {
+                    //     localStorage.setItem("coords", JSON.stringify(newCoords));
+                    // }
                     fetchWeather(newCoords);
                 },
                 () => {
                     error.value = "위치 정보를 가져올 수 없습니다.";
-                    if (cachedCoords) {
-                        fetchWeather(cachedCoords);
-                    }
+                    // if (cachedCoords) {
+                    //     fetchWeather(cachedCoords);
+                    // }
                 }
             );
         }
