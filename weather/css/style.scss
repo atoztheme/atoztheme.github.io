@@ -1,0 +1,143 @@
+[v-cloak] {
+  display: none;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+.blind {
+  position: absolute;
+  clip: rect(0 0 0 0);
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+}
+body {
+  font-family: 'Outfit', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.bg {
+  &-moring {
+    background: linear-gradient(to bottom, #fffae3, #cfe9f1);
+    .humidity span {
+      color: #00bcd4;
+    }
+  }
+  &-afternoon {
+    background: linear-gradient(to bottom, #aee9f5, #e6f7ff);
+    .humidity span {
+      color: #00bcd4;
+    }
+  }
+  &-evening {
+    background: linear-gradient(to bottom, #fdb99b, #c06c84);
+    color: #fff;
+    .humidity span {
+      color: #fff;
+    }
+  }
+  &-night {
+    background: linear-gradient(to bottom, #1b263b, #2c3e50);
+    color: #fff;
+    .humidity span {
+      color: #00bcd4;
+    }
+  }
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .icon-location {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.weather {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  text-align: center;
+  .content {
+    .city {
+      font-size: 2rem;
+    }
+    .description {
+      flex-direction: column;
+      .weather-icon {
+        display: block;
+        margin-right: 0;
+        font-size: 3rem;
+      }
+    }
+    .temp {
+      font-size: 4rem;
+      font-weight: 800;
+      padding-top: 1rem;
+    }
+    .humidity {
+      padding-top: 1rem;
+    }
+  }
+  p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .bottom {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    p {
+      display: flex;
+      align-items: center;
+    }
+    .material-symbols-outlined {
+      margin-right: 10px;
+    }
+  }
+}
+
+/* animiation */
+.sunrise {
+  animation: sunrise 3s linear infinite;
+}
+.sunset {
+  position: relative;
+  animation: sunset 3s linear infinite;
+  animation: name duration timing-function delay iteration-count direction fill-mode;
+  transition: 1s;
+}
+
+@keyframes sunrise {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes sunset {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

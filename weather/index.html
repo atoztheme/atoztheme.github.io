@@ -1,226 +1,116 @@
 <!DOCTYPE html>
 <html lang="ko">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>날씨 앱</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>W - 오늘 날씨</title>
+    <!-- google icon -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- google font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" />
+    <!-- style -->
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- vue -->
+    <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app" class="app" v-cloak>
+      <main :class="`bg-${getTimePeriodKey()}`">
+        <header>
+          <h1>W</h1>
+          <button
+            class="material-symbols-outlined icon-location"
+            aria-label="현재 위치 갱신"
+            @click="getCurrentLocation"
+          >
+            my_location
+          </button>
+        </header>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+        <section v-if="weather" class="weather">
+          <div class="content">
+            <h2 class="city">
+              <span class="blind">지역</span>
+              {{ weather.name }}
+            </h2>
+            <p class="description">
+              {{ weather.weather[0].description }}
+              <span class="material-symbols-outlined weather-icon" aria-hidden="true">
+                {{ getWeatherIcon(weather.weather[0].icon) }}
+              </span>
+            </p>
+            <p class="temp">
+              <span class="blind">온도</span>
+              {{ weather.main.temp }}°
+            </p>
+            <p class="humidity">
+              <span class="blind">습도</span>
+              <span class="material-symbols-outlined" aria-hidden="true"> humidity_high </span>
+              {{ weather.main.humidity }}%
+            </p>
+          </div>
 
-        <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
-        <style>
-            [v-cloak] {
-                display: none;
-            }
-            * {
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                /* font-family: 'Arial', sans-serif; */
-                font-family: "Outfit", sans-serif;
-                font-optical-sizing: auto;
-                font-weight: 500;
-                font-style: normal;
-            }
-            main {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                height: 100vh;
-                padding: 1rem;
-                box-sizing: border-box;
-            }
-            .bg-morning {
-                background: linear-gradient(to bottom, #fffae3, #cfe9f1);
-            }
-            .bg-afternoon {
-                background: linear-gradient(to bottom, #aee9f5, #e6f7ff);
-            }
-            .bg-evening {
-                background: linear-gradient(to bottom, #fdb99b, #c06c84);
-                color: #fff;
-            }
-            .bg-night {
-                background: linear-gradient(to bottom, #1b263b, #2c3e50);
-                color: #fff;
-            }
+          <div class="bottom">
+            <p>
+              <span class="blind">일출</span>
+              <span class="material-symbols-outlined sunrise" aria-hidden="true"> clear_day </span>
+              {{ formatTime(weather.sys.sunrise) }}
+            </p>
+            <p>
+              <span class="blind">일몰</span>
+              <span class="material-symbols-outlined sunset" aria-hidden="true"> wb_twilight </span>
+              {{ formatTime(weather.sys.sunset) }}
+            </p>
+          </div>
+        </section>
 
-            header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                /* flex-direction: row-reverse; */
-            }
-            .icon-location {
-                background: none;
-                border:none;
-                cursor: pointer;
-            }
-            .weather {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-around;
-                height: 100%;
-                text-align: center;
-            }
-            .weather .content {
-            }
-            .weather .content .city {
-                font-size: 2rem;
-            }
-            .weather .content .description {
-            }
-            .weather .content .weather-icon {
-                margin-right: 0;
-                font-size: 3rem;
-            }
-            .weather .content .temp {
-                font-size: 4rem;
-                font-weight: 800;
-                padding-top: 1rem;
-            }
-            .weather .content .humidity {
-                padding-top: 1rem;
-            }
-            .bg-morning .humidity span {
-                color: #00bcd4;
-            }
-            .bg-afternoon .humidity span {
-                color: #00bcd4;
-            }
-            .bg-evening .humidity span {
-                color: #fff;
-            }
-            .bg-night .humidity span {
-                color: #00bcd4;
-            }
-            .weather p {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            .weather .bottom {
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-            }
-            .weather .bottom p {
-                display: flex;
-                align-items: center;
-            }
-            .material-symbols-outlined {
-                margin-right: 10px;
-            }
+        <section v-else class="weather">
+          <p v-if="error" style="color: red">{{ error }}</p>
+          <p v-else>날씨 정보를 불러오는 중...</p>
+        </section>
+      </main>
+    </div>
 
-            /* animiation */
-            .sunrise {
-                animation: sunrise 3s linear infinite;
-            }
-            .sunset {
-                position: relative;
-                animation: sunset 3s linear infinite;
-                transition: 1s;
-            }
-            @keyframes sunrise {
-                0% {
-                    transform: rotate(0);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-            @keyframes sunset {
-                0% {
-                    opacity: 1;
-                }
-                100% {
-                    opacity: 0;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div id="app" class="app" v-cloak>
-            <main :class="`bg-${getTimePeriodKey()}`">
-                <header>
-                    <h1>W</h1>
-                    <button class="material-symbols-outlined icon-location" @click="getCurrentLocation">my_location</button>
-                </header>
+    <script type="module">
+      import { useTime } from './useTime.js';
+      import { useWeather } from './useWeather.js';
+      const { createApp, ref, watch, onMounted } = Vue;
 
-                <section v-if="weather" class="weather">
-                    <div class="content">
-                        <h2 class="city">{{ weather.name }}</h2>
-                        <p class="description">{{ weather.weather[0].description }}</p>
-                        <span class="material-symbols-outlined weather-icon">{{ getWeatherIcon(weather.weather[0].icon) }}</span>
+      const { currentDate, getTimePeriodKey, formatTime } = useTime();
+      const { weather, error, getCurrentLocation, getWeatherIcon } = useWeather();
 
-                        <p class="temp">{{ weather.main.temp }}°</p>
+      createApp({
+        setup() {
+          // 정각 마다 날씨 갱신
+          const scheduleNextHourlyUpdate = () => {
+            const now = new Date();
+            const msUntilNextHour =
+              (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
+            setTimeout(() => {
+              getCurrentLocation();
+              scheduleNextHourlyUpdate();
+            }, msUntilNextHour);
+          };
 
-                        <p class="humidity">
-                            <span class="material-symbols-outlined">humidity_high</span>
-                            {{ weather.main.humidity }}%
-                        </p>
-                    </div>
+          onMounted(() => {
+            getCurrentLocation();
+            // 정시마다 날씨 갱신
+            scheduleNextHourlyUpdate();
+          });
 
-                    <div class="bottom">
-                        <p>
-                            <span class="material-symbols-outlined sunrise" role="img" aria-label="일출">clear_day</span>
-                            {{ formatTime(weather.sys.sunrise) }}
-                        </p>
-                        <p>
-                            <span class="material-symbols-outlined sunset" role="img" aria-label="일몰">wb_twilight</span>
-                            {{ formatTime(weather.sys.sunset) }}
-                        </p>
-                    </div>
-                </section>
-
-                <section v-else class="weather">
-                    <p v-if="error" style="color: red">{{ error }}</p>
-                    <p v-else>날씨 정보를 불러오는 중...</p>
-                </section>
-            </main>
-        </div>
-
-        <script type="module">
-            import { useTime } from "./useTime.js";
-            import { useWeather } from "./useWeather.js";
-            const { createApp, ref, watch, onMounted } = Vue;
-
-            const { currentDate, getTimePeriodKey, formatTime } = useTime();
-            const { weather, error, getCurrentLocation, getWeatherIcon } = useWeather();
-
-            createApp({
-                setup() {
-                    // 정각 마다 날씨 갱신
-                    const scheduleNextHourlyUpdate = () => {
-                        const now = new Date();
-                        const msUntilNextHour = (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
-                        setTimeout(() => {
-                            getCurrentLocation();
-                            scheduleNextHourlyUpdate(); // 재귀 호출
-                        }, msUntilNextHour);
-                    };
-
-                    onMounted(() => {
-                        getCurrentLocation();
-                        // ⏰ 정시마다 날씨 갱신
-                        scheduleNextHourlyUpdate();
-                    });
-
-                    return {
-                        weather,
-                        error,
-                        currentDate,
-                        formatTime,
-                        getWeatherIcon,
-                        getTimePeriodKey,
-                        getCurrentLocation
-                    };
-                },
-            }).mount("#app");
-        </script>
-    </body>
+          return {
+            weather,
+            error,
+            currentDate,
+            formatTime,
+            getWeatherIcon,
+            getTimePeriodKey,
+            getCurrentLocation
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
 </html>
