@@ -2,28 +2,29 @@ export function useTime() {
     const currentDate = Vue.ref("");
 
     const formatDate = () => {
-        const date = new Date();
-        return date.toLocaleString("ko-KR", {
-            timeZone: "Asia/Seoul",
-            year: "2-digit",
-            month: "2-digit",
-            day: "numeric",
-            weekday: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false,
-        });
+        const now = new Date();
+
+        // 한국 시간으로 변환 (UTC +9)
+        const koreaTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+
+        const yy = String(koreaTime.getFullYear()).slice(2);
+        const mm = String(koreaTime.getMonth() + 1).padStart(2, '0');
+        const dd = String(koreaTime.getDate()).padStart(2, '0');
+
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const weekday = days[koreaTime.getDay()];
+        
+        return `${yy}.${mm}.${dd} (${weekday}) ${formatTime(now, true)}`;
     };
 
-    const formatTime = (dt) => {
+    const formatTime = (dt, isHour12 = false) => {
         const date = new Date(dt * 1000);
         return date.toLocaleString("ko-KR", {
             timeZone: "Asia/Seoul",
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
-            hour12: false,
+            hour12: isHour12,
         });
     };
 

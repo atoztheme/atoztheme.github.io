@@ -12,6 +12,9 @@
 
         <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
         <style>
+            [v-cloak] {
+                display: none;
+            }
             * {
                 margin: 0;
                 padding: 0;
@@ -50,7 +53,12 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                flex-direction: row-reverse;
+                /* flex-direction: row-reverse; */
+            }
+            .icon-location {
+                background: none;
+                border:none;
+                cursor: pointer;
             }
             .weather {
                 display: flex;
@@ -136,11 +144,11 @@
         </style>
     </head>
     <body>
-        <div id="app" class="app">
+        <div id="app" class="app" v-cloak>
             <main :class="`bg-${getTimePeriodKey()}`">
                 <header>
                     <h1>W</h1>
-                    <span>{{ currentDate }}</span>
+                    <button class="material-symbols-outlined icon-location" @click="getCurrentLocation">my_location</button>
                 </header>
 
                 <section v-if="weather" class="weather">
@@ -209,7 +217,7 @@
                         formatTime,
                         getWeatherIcon,
                         getTimePeriodKey,
-                        getCurrentLocation,
+                        getCurrentLocation
                     };
                 },
             }).mount("#app");
