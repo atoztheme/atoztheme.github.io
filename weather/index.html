@@ -20,6 +20,7 @@
       <main :class="`bg-${getTimePeriodKey()}`">
         <header>
           <h1>W</h1>
+          <p class="time">{{currentDate.date}} {{currentDate.time}}</p>
           <button
             class="material-symbols-outlined icon-location"
             aria-label="현재 위치 갱신"
@@ -30,20 +31,24 @@
         </header>
 
         <section v-if="weather" class="weather">
-          <div class="content">
+          <div class="today-weather">
             <h2 class="city">
               <span class="blind">지역</span>
               {{ weather.name }}
             </h2>
             <p class="description">
               {{ weather.weather[0].description }}
-              <span class="material-symbols-outlined weather-icon" aria-hidden="true">
+              <span class="material-symbols-outlined icon-weather" aria-hidden="true">
                 {{ getWeatherIcon(weather.weather[0].icon) }}
               </span>
             </p>
             <p class="temp">
               <span class="blind">온도</span>
               {{ weather.main.temp }}°
+              <span class="temp-diff">
+                <template v-if="!diffSign">어제와 같아요</template>
+                <template v-else>어제보다 {{tempDiffStr}}° {{diffSign === 'up'? '높아요':'낮아요'}}</template>
+              </span>
             </p>
             <p class="humidity">
               <span class="blind">습도</span>
@@ -52,16 +57,31 @@
             </p>
           </div>
 
-          <div class="bottom">
+          <div class="forecast">
+            <div class="forecast-group" v-for="(times, date) in forecastByDate" :key="date">
+              <h3>{{ date }}</h3>
+              <ul>
+                <li v-for="timeData in times" :key="timeData.time">
+                  <span class="forecast-time">{{ timeData.time }} </span>
+                  <span class="material-symbols-outlined" aria-hidden="true">
+                    {{ getWeatherIcon(timeData.icon) }}
+                  </span>
+                  <span class="forecast-temp"> {{ timeData.temp }}°</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="sunrise-sunset">
             <p>
               <span class="blind">일출</span>
-              <span class="material-symbols-outlined sunrise" aria-hidden="true"> clear_day </span>
-              {{ formatTime(weather.sys.sunrise) }}
+              <span class="material-symbols-outlined icon-sunrise" aria-hidden="true"> clear_day </span>
+              {{ formatTime(weather.sys.sunrise, true) }}
             </p>
             <p>
               <span class="blind">일몰</span>
-              <span class="material-symbols-outlined sunset" aria-hidden="true"> wb_twilight </span>
-              {{ formatTime(weather.sys.sunset) }}
+              <span class="material-symbols-outlined icon-sunset" aria-hidden="true"> wb_twilight </span>
+              {{ formatTime(weather.sys.sunset, true) }}
             </p>
           </div>
         </section>
@@ -70,38 +90,31 @@
           <p v-if="error" style="color: red">{{ error }}</p>
           <p v-else>날씨 정보를 불러오는 중...</p>
         </section>
+
+        <footer>&copy; atozTheme</footer>
       </main>
     </div>
 
     <script type="module">
       import { useTime } from './useTime.js';
       import { useWeather } from './useWeather.js';
-      const { createApp, ref, watch, onMounted } = Vue;
+      const { createApp, onMounted } = Vue;
 
       const { currentDate, getTimePeriodKey, formatTime } = useTime();
-      const { weather, error, getCurrentLocation, getWeatherIcon } = useWeather();
+      const { weather, forecastByDate, diffSign, tempDiffStr, error, getCurrentLocation, getWeatherIcon } =
+        useWeather();
 
       createApp({
         setup() {
-          // 정각 마다 날씨 갱신
-          const scheduleNextHourlyUpdate = () => {
-            const now = new Date();
-            const msUntilNextHour =
-              (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
-            setTimeout(() => {
-              getCurrentLocation();
-              scheduleNextHourlyUpdate();
-            }, msUntilNextHour);
-          };
-
           onMounted(() => {
             getCurrentLocation();
-            // 정시마다 날씨 갱신
-            scheduleNextHourlyUpdate();
           });
 
           return {
             weather,
+            forecastByDate,
+            diffSign,
+            tempDiffStr,
             error,
             currentDate,
             formatTime,
