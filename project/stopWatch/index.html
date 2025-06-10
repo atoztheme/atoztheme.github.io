@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STOP WATCH</title>
+    <!-- google font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" />
+    <!-- style -->
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- vue -->
+    <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <main :class="{'recode-mode': recodeList.length > 0}">
+        <div class="stop-watch">
+          <div class="group hours">
+            <span>{{time.hours[0]}}</span>
+            <span>{{time.hours[1]}}</span>
+          </div>
+          <div class="colon">:</div>
+          <div class="group minutes">
+            <span>{{time.minutes[0]}}</span>
+            <span>{{time.minutes[1]}}</span>
+          </div>
+          <div class="colon">:</div>
+          <div class="group seconds">
+            <span>{{time.seconds[0]}}</span>
+            <span>{{time.seconds[1]}}</span>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-gray" @click="toggleRecordReset">{{isStart ? 'RECORD' : 'RESET'}}</button>
+          <button class="btn btn-primary" :class="{ active: isStart}" @click="toggleTimer">
+            {{isStart ? 'STOP': 'START'}}
+          </button>
+        </div>
+
+        <div class="recode">
+          <ul>
+            <li v-for="(recode, i) in recodeList.slice().reverse()">
+              <span class="num">{{pad(recodeList.length - i)}}</span>
+              {{recode.hours}} : {{recode.minutes}} : {{recode.seconds}}
+            </li>
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <script type="module">
+      const { createApp, onMounted, ref, computed } = Vue;
+      const pad = (n) => String(n).padStart(2, '0');
+
+      createApp({
+        setup() {
+          const hours = ref(0);
+          const minutes = ref(0);
+          const seconds = ref(0);
+          const isStart = ref(false);
+          const recodeList = ref([]);
+          let timer;
+
+          const time = computed(() => {
+            return {
+              hours: pad(hours.value).split(''),
+              minutes: pad(minutes.value).split(''),
+              seconds: pad(seconds.value).split('')
+            };
+          });
+
+          const startTimer = () => {
+            timer = setInterval(() => {
+              seconds.value++;
+              if (seconds.value > 60) {
+                seconds.value = 0;
+                minutes.value++;
+              }
+              if (minutes.value > 60) {
+                minutes.value = 0;
+                seconds.value = 0;
+                hours.value++;
+              }
+            }, 100);
+          };
+
+          const toggleTimer = () => {
+            if (isStart.value) {
+              clearInterval(timer);
+              timer = null;
+            } else {
+              startTimer();
+            }
+            isStart.value = !isStart.value;
+          };
+
+          const toggleRecordReset = () => {
+            if (isStart.value) {
+              recodeList.value.push({
+                hours: pad(hours.value),
+                minutes: pad(minutes.value),
+                seconds: pad(seconds.value)
+              });
+            } else {
+              hours.value = 0;
+              minutes.value = 0;
+              seconds.value = 0;
+              recodeList.value = [];
+            }
+          };
+
+          return {
+            time,
+            recodeList,
+            isStart,
+            toggleRecordReset,
+            toggleTimer,
+            pad
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
+</html>
