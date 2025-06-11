@@ -16,18 +16,18 @@
       <main :class="{'recode-mode': recodeList.length > 0}">
         <div class="stop-watch">
           <div class="group hours">
-            <span>{{time.hours[0]}}</span>
-            <span>{{time.hours[1]}}</span>
+            <span>{{currentTime.hours[0]}}</span>
+            <span>{{currentTime.hours[1]}}</span>
           </div>
           <div class="colon">:</div>
           <div class="group minutes">
-            <span>{{time.minutes[0]}}</span>
-            <span>{{time.minutes[1]}}</span>
+            <span>{{currentTime.minutes[0]}}</span>
+            <span>{{currentTime.minutes[1]}}</span>
           </div>
           <div class="colon">:</div>
           <div class="group seconds">
-            <span>{{time.seconds[0]}}</span>
-            <span>{{time.seconds[1]}}</span>
+            <span>{{currentTime.seconds[0]}}</span>
+            <span>{{currentTime.seconds[1]}}</span>
           </div>
         </div>
 
@@ -39,10 +39,16 @@
         </div>
 
         <div class="recode">
+          <div v-if="recodeList.length" class="title">
+            <span class="num">NO</span>
+            <span class="interval-recode">INTERVAL</span>
+            <span class="total-recode">TOTAL</span>
+          </div>
           <ul>
             <li v-for="(recode, i) in recodeList.slice().reverse()">
               <span class="num">{{pad(recodeList.length - i)}}</span>
-              {{recode.hours}} : {{recode.minutes}} : {{recode.seconds}}
+              <span class="interval-recode">{{ formatTime(recode.intervalRecode)}}</span>
+              <span class="total-recode">{{ formatTime(recode.totalRecode)}}</span>
             </li>
           </ul>
         </div>
@@ -52,71 +58,79 @@
     <script type="module">
       const { createApp, onMounted, ref, computed } = Vue;
       const pad = (n) => String(n).padStart(2, '0');
+      const formatTime = (time) => `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
 
       createApp({
         setup() {
-          const hours = ref(0);
-          const minutes = ref(0);
-          const seconds = ref(0);
           const isStart = ref(false);
+          const MAX_TIME = 59;
+          const INIT_TIME = { hours: 0, minutes: 0, seconds: 0 };
+          const totalRecode = ref({ ...INIT_TIME });
+          const intervalRecode = ref({ ...INIT_TIME });
           const recodeList = ref([]);
           let timer;
 
-          const time = computed(() => {
+          const currentTime = computed(() => {
             return {
-              hours: pad(hours.value).split(''),
-              minutes: pad(minutes.value).split(''),
-              seconds: pad(seconds.value).split('')
+              hours: pad(totalRecode.value.hours).split(''),
+              minutes: pad(totalRecode.value.minutes).split(''),
+              seconds: pad(totalRecode.value.seconds).split('')
             };
           });
 
+          // 타이머 시작
           const startTimer = () => {
             timer = setInterval(() => {
-              seconds.value++;
-              if (seconds.value > 60) {
-                seconds.value = 0;
-                minutes.value++;
+              intervalRecode.value.seconds++;
+              totalRecode.value.seconds++;
+              if (totalRecode.value.seconds > MAX_TIME) {
+                intervalRecode.value.seconds = 0;
+                intervalRecode.value.minutes++;
+                totalRecode.value.seconds = 0;
+                totalRecode.value.minutes++;
               }
-              if (minutes.value > 60) {
-                minutes.value = 0;
-                seconds.value = 0;
-                hours.value++;
+              if (totalRecode.value.minutes > MAX_TIME) {
+                intervalRecode.value.minutes = 0;
+                intervalRecode.value.hours++;
+                totalRecode.value.minutes = 0;
+                totalRecode.value.hours++;
               }
-            }, 100);
+            }, 500);
           };
 
+          // 타이머 시작 / 멈춤
           const toggleTimer = () => {
             if (isStart.value) {
               clearInterval(timer);
-              timer = null;
             } else {
               startTimer();
             }
             isStart.value = !isStart.value;
           };
 
+          // 타이머 기록 / 초기화
           const toggleRecordReset = () => {
             if (isStart.value) {
               recodeList.value.push({
-                hours: pad(hours.value),
-                minutes: pad(minutes.value),
-                seconds: pad(seconds.value)
+                intervalRecode: { ...intervalRecode.value },
+                totalRecode: { ...totalRecode.value }
               });
+              intervalRecode.value = { ...INIT_TIME };
             } else {
-              hours.value = 0;
-              minutes.value = 0;
-              seconds.value = 0;
+              intervalRecode.value = { ...INIT_TIME };
+              totalRecode.value = { ...INIT_TIME };
               recodeList.value = [];
             }
           };
 
           return {
-            time,
+            currentTime,
             recodeList,
             isStart,
             toggleRecordReset,
             toggleTimer,
-            pad
+            pad,
+            formatTime
           };
         }
       }).mount('#app');

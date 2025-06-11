@@ -9,7 +9,7 @@
   -webkit-appearance: none;
   display: none;
 }
-$primary: #008cff;
+$primary: #2196f3;
 $primary-dark: #006dc7;
 $gray: gray;
 $red: #e91e63;
@@ -28,10 +28,14 @@ main {
   height: 100vh;
   box-sizing: border-box;
   &.recode-mode {
-    padding: 1rem;
+    padding: 20px;
     .recode {
-      height: 50vh;
-      overflow: auto;
+      height: 100%;
+      max-height: 290px;
+      ul {
+        height: 100%;
+        overflow: auto;
+      }
     }
   }
 }
@@ -39,7 +43,6 @@ main {
 .stop-watch {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
   font-size: 4rem;
   .group {
     span {
@@ -60,7 +63,7 @@ main {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    border: 0.4rem solid #fff;
+    border: 5px solid #fff;
     background: $primary;
     color: #fff;
     font-size: 1rem;
@@ -82,23 +85,43 @@ main {
 }
 
 .recode {
+  overflow: hidden;
   transition: 1s;
   height: 0;
-  margin-top: 2rem;
+  max-height: 0;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 20px;
+  .num {
+    width: 40px;
+    text-align: center;
+  }
+  span ~ span {
+    flex: 1;
+    text-align: center;
+  }
+  .title {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #fff;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+    height: 30px;
+  }
   li {
     list-style: none;
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
-  }
-  .num {
-    display: inline-block;
-    text-align: center;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    border-radius: 50%;
-    background: $primary-dark;
-    margin-right: 1rem;
+    margin-bottom: 10px;
+    .num {
+      display: inline-block;
+      text-align: center;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      background: $primary-dark;
+    }
   }
 }

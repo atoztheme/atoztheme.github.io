@@ -13,7 +13,7 @@
 }
 
 body {
-  background: #008cff;
+  background: #2196f3;
   font-family: "Outfit", sans-serif;
   color: #fff;
 }
@@ -27,17 +27,20 @@ main {
   box-sizing: border-box;
 }
 main.recode-mode {
-  padding: 1rem;
+  padding: 20px;
 }
 main.recode-mode .recode {
-  height: 50vh;
+  height: 100%;
+  max-height: 290px;
+}
+main.recode-mode .recode ul {
+  height: 100%;
   overflow: auto;
 }
 
 .stop-watch {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
   font-size: 4rem;
 }
 .stop-watch .group span {
@@ -55,8 +58,8 @@ main.recode-mode .recode {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  border: 0.4rem solid #fff;
-  background: #008cff;
+  border: 5px solid #fff;
+  background: #2196f3;
   color: #fff;
   font-size: 1rem;
   font-weight: bold;
@@ -74,17 +77,38 @@ main.recode-mode .recode {
 }
 
 .recode {
+  overflow: hidden;
   transition: 1s;
   height: 0;
-  margin-top: 2rem;
+  max-height: 0;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 20px;
+}
+.recode .num {
+  width: 40px;
+  text-align: center;
+}
+.recode span ~ span {
+  flex: 1;
+  text-align: center;
+}
+.recode .title {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #fff;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  box-sizing: border-box;
+  height: 30px;
 }
 .recode li {
   list-style: none;
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 10px;
 }
-.recode .num {
+.recode li .num {
   display: inline-block;
   text-align: center;
   width: 40px;
@@ -92,5 +116,4 @@ main.recode-mode .recode {
   line-height: 40px;
   border-radius: 50%;
   background: #006dc7;
-  margin-right: 1rem;
 }/*# sourceMappingURL=style.css.map */
