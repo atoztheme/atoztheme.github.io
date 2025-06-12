@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STOP WATCH</title>
+    <!-- google font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" />
+    <!-- style -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <main class="recode-mode">
+        <div class="time-display stop-watch">
+          <div class="group"><span>0</span><span>0</span></div>
+          <div class="separator">:</div>
+          <div class="group"><span>0</span><span>4</span></div>
+          <div class="separator">.</div>
+          <div class="group"><span>8</span><span>0</span></div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-reset">RESET</button>
+          <button class="btn btn-start">START</button>
+        </div>
+        <!-- <div class="btn-group">
+          <button class="btn btn-recode">RECORD</button>
+          <button class="btn btn-stop">STOP</button>
+        </div> -->
+
+        <div class="recode" style="display: none">
+          <div class="title">
+            <span class="col">NO</span><span class="col">INTERVAL</span><span class="col">TOTAL</span>
+          </div>
+          <ul>
+            <li>
+              <div class="col"><span class="num">05</span></div>
+              <div class="col">
+                <div class="time-display interval-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>5</span><span>3</span></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="time-display total-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>3</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>7</span><span>4</span></div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="col"><span class="num">04</span></div>
+              <div class="col">
+                <div class="time-display interval-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>1</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>2</span><span>1</span></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="time-display total-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>3</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>2</span><span>1</span></div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="col"><span class="num">03</span></div>
+              <div class="col">
+                <div class="time-display interval-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>6</span><span>0</span></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="time-display total-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>2</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>6</span><span>2</span></div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="col"><span class="num">02</span></div>
+              <div class="col">
+                <div class="time-display interval-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>2</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>0</span><span>2</span></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="time-display total-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>2</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>0</span><span>2</span></div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="col"><span class="num">01</span></div>
+              <div class="col">
+                <div class="time-display interval-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>6</span><span>8</span></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="time-display total-recode">
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">:</div>
+                  <div class="group"><span>0</span><span>0</span></div>
+                  <div class="separator">.</div>
+                  <div class="group"><span>6</span><span>8</span></div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
