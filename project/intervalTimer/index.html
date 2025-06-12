@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interval Timer</title>
+    <!-- google font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" />
+    <!-- style -->
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- vue -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Interval Timer</h1>
+
+      <div v-if="!isRunning" class="settings">
+        <div>
+          <label for="sets">세트 수</label>
+          <input type="number" id="sets" v-model.number="sets" min="1" />
+        </div>
+        <div>
+          <label for="workoutTime">운동 시간</label>
+          <input type="text" id="workoutTime" v-model="workoutInput" @input="formatTimeInput('workout')" />
+        </div>
+        <div>
+          <label for="restTime">휴식 시간</label>
+          <input type="text" id="restTime" v-model="restInput" @input="formatTimeInput('rest')" />
+        </div>
+        <button @click="startTimer" :disabled="!isSettingsValid">시작</button>
+        <button @click="reset">초기화</button>
+      </div>
+
+      <div v-else class="timer-display">
+        <p class="current-status">{{ currentStatus }}</p>
+        <p v-if="currentStatus !== '완료'" class="time-left">{{ formatTime(timeLeft) }}</p>
+        <p v-if="currentStatus !== '완료' && currentStatus !== '시작 카운트'" class="set-info">
+          {{ sets }} 세트 중 {{ currentSet }} 번째
+        </p>
+        <button v-if="currentStatus !== '완료'" @click="pauseTimer">일시정지</button>
+        <button @click="reStartTimer">재시작</button>
+        <button @click="stopTimer">그만두기</button>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, watch } = Vue;
+
+      createApp({
+        setup() {
+          const sets = ref(1); // 총 세트 수
+          const workoutInput = ref('00:00'); // 운동 시간 입력
+          const restInput = ref('00:00'); // 휴식 시간 입력
+
+          const workoutDuration = ref(0); // 운동 시간 (초)
+          const restDuration = ref(0); // 휴식 시간 (초)
+
+          const currentSet = ref(0); // 현재 세트
+          const currentStatus = ref('준비'); // 현재 상태 (준비, 운동, 휴식, 시작 카운트)
+          const timeLeft = ref(0); // 남은 시간 (초)
+
+          const isRunning = ref(false); // 타이머 실행 중 여부
+          const timerInterval = ref(null); // setInterval ID 저장
+
+          // --- Computed 속성 ---
+          const isSettingsValid = computed(() => workoutDuration.value > 0);
+
+          // --- Watcher ---
+          // workoutInput, restInput이 변경될 때 실제 초(duration)로 변환
+          watch(
+            workoutInput,
+            (newVal) => {
+              workoutDuration.value = parseTimeToSeconds(newVal);
+            },
+            { immediate: true }
+          );
+          watch(
+            restInput,
+            (newVal) => {
+              restDuration.value = parseTimeToSeconds(newVal);
+            },
+            { immediate: true }
+          );
+
+          // --- 함수 ---
+          /**
+           * 시간 문자열 (mm:ss)을 초로 변환
+           * @param {number} num 숫자
+           * @returns {string} 두자리 수 문자열
+           */
+          const pad = (num) => String(num).padStart(2, '0');
+          /**
+           * 시간 문자열 (mm:ss)을 초로 변환
+           * @param {string} timeStr - "mm:ss" 형식의 시간 문자열
+           * @returns {number} 총 초
+           */
+          const parseTimeToSeconds = (timeStr) => {
+            const parts = timeStr.split(':');
+            if (parts.length === 2) {
+              const minutes = parseInt(parts[0], 10);
+              const seconds = parseInt(parts[1], 10);
+              if (!isNaN(minutes) && !isNaN(seconds)) {
+                return minutes * 60 + seconds;
+              }
+            }
+            return 0; // 유효하지 않은 형식일 경우 0 반환
+          };
+
+          /**
+           * 초를 "mm:ss" 형식의 문자열로 변환
+           * @param {number} totalSeconds - 총 초
+           * @returns {string} "mm:ss" 형식의 문자열
+           */
+          const formatTime = (totalSeconds) => {
+            if (totalSeconds < 0) totalSeconds = 0; // 음수 방지
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${pad(minutes)}:${pad(seconds)}`;
+          };
+
+          /**
+           * 시간 입력 필드 포맷팅 (mm:ss)
+           * @param {'workout' | 'rest'} type - 운동 또는 휴식 시간 유형
+           */
+          const formatTimeInput = (type) => {
+            let value = type === 'workout' ? workoutInput.value : restInput.value;
+            value = value.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
+
+            let formatted = '';
+            if (value.length >= 3) {
+              // 최소 3자리부터 XX:YY 형식 시작
+              formatted = `${value.substring(0, value.length - 2)}:${value.substring(value.length - 2)}`;
+            } else if (value.length > 0) {
+              // 1~2자리는 00:XX
+              formatted = `00:${pad(value)}`;
+            } else {
+              // 빈 문자열
+              formatted = '00:00';
+            }
+
+            // 분이 99분을 넘어가지 않도록 제한 (예: 99:59)
+            const parts = formatted.split(':');
+            let minutes = parseInt(parts[0], 10);
+            let seconds = parseInt(parts[1], 10);
+
+            if (minutes > 99) {
+              minutes = 99;
+            }
+            if (seconds > 59) {
+              seconds = 59;
+            }
+
+            formatted = `${pad(minutes)}:${pad(seconds)}`;
+
+            if (type === 'workout') {
+              workoutInput.value = formatted;
+            } else {
+              restInput.value = formatted;
+            }
+          };
+
+          /**
+           * 타이머 재시작
+           */
+          const reStartTimer = () => {
+            if (currentStatus.value === '완료') {
+              startTimer();
+              return;
+            }
+            timerInterval.value = setInterval(() => {
+              timeLeft.value--;
+
+              if (timeLeft.value <= 0) {
+                clearInterval(timerInterval.value);
+                moveToNextPhase();
+              }
+            }, 1000);
+          };
+
+          /**
+           * 타이머 시작 (시작 카운트부터)
+           */
+          const startTimer = () => {
+            if (!isSettingsValid.value) return;
+
+            isRunning.value = true;
+            currentSet.value = 0; // 시작 시 세트 0으로 초기화
+            timeLeft.value = 5; // 시작 카운트 5초
+            currentStatus.value = '시작 카운트';
+
+            reStartTimer();
+          };
+
+          /**
+           * 다음 운동/휴식 단계로 이동
+           */
+          const moveToNextPhase = () => {
+            // 모든 세트 완료 및 휴식까지 끝났을 경우
+            if (currentStatus.value === '휴식' && currentSet.value === sets.value) {
+              currentStatus.value = '완료';
+              isRunning.value = false;
+              clearInterval(timerInterval.value);
+              return;
+            }
+
+            // 다음 상태 결정
+            if (
+              currentStatus.value === '시작 카운트' ||
+              currentStatus.value === '휴식' ||
+              currentStatus.value === '완료'
+            ) {
+              currentSet.value++;
+              currentStatus.value = '운동';
+              timeLeft.value = workoutDuration.value;
+            } else if (currentStatus.value === '운동') {
+              if (currentSet.value < sets.value) {
+                // 마지막 세트가 아니라면 휴식
+                currentStatus.value = '휴식';
+                timeLeft.value = restDuration.value;
+              } else {
+                // 마지막 세트 운동 완료 후
+                currentStatus.value = '완료';
+                // isRunning.value = false;
+                clearInterval(timerInterval.value);
+                return;
+              }
+            }
+
+            // 타이머 실행 (완료 상태가 아닐 경우)
+            if (currentStatus.value !== '완료') {
+              reStartTimer();
+            }
+          };
+
+          /**
+           * 타이머 일시 정지
+           */
+          const pauseTimer = () => {
+            clearInterval(timerInterval.value);
+          };
+
+          /**
+           * 타이머 정지
+           */
+          const stopTimer = () => {
+            clearInterval(timerInterval.value);
+            isRunning.value = false;
+            currentSet.value = 0;
+            timeLeft.value = 0;
+            currentStatus.value = '준비';
+          };
+
+          /**
+           * 입력 필드 초기값으로 되돌리기
+           */
+          const reset = () => {
+            workoutInput.value = '00:00';
+            restInput.value = '00:00';
+            workoutDuration.value = 0;
+            restDuration.value = 0;
+          };
+
+          return {
+            sets,
+            workoutInput,
+            restInput,
+            currentSet,
+            currentStatus,
+            timeLeft,
+            isRunning,
+            isSettingsValid,
+            stopTimer,
+            startTimer,
+            pauseTimer,
+            reStartTimer,
+            reset,
+            formatTime,
+            formatTimeInput
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
+</html>

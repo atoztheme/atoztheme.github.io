@@ -1,0 +1,107 @@
+body {
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+  background-color: #f4f7f6;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+#app {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  width: 100%;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  font-weight: 600;
+}
+
+.settings,
+.timer-display {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+}
+
+.settings div {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.settings label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #34495e;
+  font-size: 1.1em;
+}
+
+.settings input[type='number'],
+.settings input[type='text'] {
+  width: calc(100% - 20px); /* Adjusting for padding */
+  padding: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  font-size: 1.1em;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+button {
+  padding: 12px 25px;
+  margin: 15px 10px 0;
+  font-size: 1.1em;
+  cursor: pointer;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  font-weight: 500;
+}
+
+button:hover:not(:disabled) {
+  background-color: #36a26a;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.timer-display .current-status {
+  font-size: 2.8em;
+  font-weight: bold;
+  color: #3498db;
+  margin-bottom: 15px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.timer-display .time-left {
+  font-size: 6em;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 25px;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.timer-display .set-info {
+  font-size: 1.6em;
+  color: #555;
+  margin-bottom: 30px;
+}
