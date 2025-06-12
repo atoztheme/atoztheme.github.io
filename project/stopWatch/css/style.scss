@@ -10,13 +10,12 @@
   display: none;
 }
 $bg: #203763;
-$primary: #3862b0;
-$primary-dark: #006dc7;
-$gray: gray;
-$red: #e91e63;
+$primary: #006dc7;
+$stop: #e91e63;
+$recode: #4caf50;
+$reset: gray;
 
 body {
-  background: $bg;
   font-family: 'Outfit', sans-serif;
   color: #fff;
 }
@@ -28,6 +27,7 @@ main {
   align-items: center;
   height: 100vh;
   box-sizing: border-box;
+  background: $bg;
   &.recode-mode {
     padding: 20px;
     .recode {
@@ -67,16 +67,17 @@ main {
     font-weight: bold;
     letter-spacing: 1px;
     cursor: pointer;
-    &:hover {
-      background: $primary-dark;
+    &-recode {
+      background: $recode;
     }
-    &-primary {
-      &.active {
-        background: $red;
-      }
+    &-reset {
+      background: $reset;
     }
-    &-gray {
-      background: $gray;
+    &-stop {
+      background: $stop;
+    }
+    &-start {
+      background: $primary;
     }
   }
 }
@@ -113,6 +114,9 @@ main {
       display: flex;
       align-items: center;
       margin: 10px 0;
+      &:nth-child(2n) {
+        background: rgba(255, 255, 255, 0.1);
+      }
       .num {
         display: inline-block;
         text-align: center;
@@ -120,7 +124,7 @@ main {
         height: 40px;
         line-height: 40px;
         border-radius: 50%;
-        background: $primary-dark;
+        font-weight: bold;
       }
       .time-display {
         display: flex;

@@ -13,12 +13,26 @@
   </head>
   <body>
     <div id="app" v-cloak>
-      <main :class="{'recode-mode': isViewRecode}">
+      <main :class="{'recode-mode': isViewRecode}" :style="backgroundStyle">
         <time-display :time="totalRecode" :pad="pad" class="stop-watch"></time-display>
 
         <div class="btn-group">
-          <button class="btn btn-gray" @click="toggleRecordReset">{{isStart ? 'RECORD' : 'RESET'}}</button>
-          <button class="btn btn-primary" :class="{ active: isStart}" @click="toggleTimer">
+          <button
+            class="btn"
+            :class="{
+            'btn-recode': isStart,
+            'btn-reset':!isStart}"
+            @click="toggleRecordReset"
+          >
+            {{isStart ? 'RECORD' : 'RESET'}}
+          </button>
+          <button
+            class="btn"
+            :class="{
+            'btn-stop': isStart,
+            'btn-start':!isStart}"
+            @click="toggleTimer"
+          >
             {{isStart ? 'STOP': 'START'}}
           </button>
         </div>
@@ -69,6 +83,9 @@
           const totalRecode = ref({ ...INIT_TIME });
           const intervalRecode = ref({ ...INIT_TIME });
           const recodeList = ref([]);
+          const angle = ref(0);
+          const bgColor = ['#203763', '#006dc7'];
+          let animationFrame = null;
           let timer = null;
 
           // 기록 역순 정렬
@@ -80,6 +97,30 @@
           const isViewRecode = computed(() => {
             return recodeList.value.length > 0;
           });
+
+          // 배경색
+          const backgroundStyle = computed(() => {
+            return isStart.value
+              ? {
+                  background: `linear-gradient(${angle.value}deg, ${bgColor[0]}, ${bgColor[1]})`
+                }
+              : null;
+          });
+
+          // 배경 애니메이션 시작
+          const startAnimation = () => {
+            const animate = () => {
+              angle.value = (angle.value + 1) % 360;
+              animationFrame = requestAnimationFrame(animate);
+            };
+            animationFrame = requestAnimationFrame(animate);
+          };
+
+          // 배경 애니메이션 멈춤
+          const stopAnimation = () => {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+          };
 
           // 타이머 시작
           const startTimer = () => {
@@ -107,9 +148,11 @@
           const toggleTimer = () => {
             if (isStart.value) {
               clearInterval(timer);
+              stopAnimation();
               timer = null;
             } else {
               startTimer();
+              startAnimation();
             }
             isStart.value = !isStart.value;
           };
@@ -138,10 +181,12 @@
           onUnmounted(() => {
             if (timer) {
               clearInterval(timer);
+              stopAnimation();
             }
           });
 
           return {
+            backgroundStyle,
             totalRecode,
             recodeList,
             reversedRecodeList,

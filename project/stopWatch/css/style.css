@@ -13,7 +13,6 @@
 }
 
 body {
-  background: #203763;
   font-family: "Outfit", sans-serif;
   color: #fff;
 }
@@ -25,6 +24,7 @@ main {
   align-items: center;
   height: 100vh;
   box-sizing: border-box;
+  background: #203763;
 }
 main.recode-mode {
   padding: 20px;
@@ -55,21 +55,24 @@ main.recode-mode .recode {
   height: 100px;
   border-radius: 50%;
   border: 5px solid #fff;
-  background: #3862b0;
+  background: #006dc7;
   color: #fff;
   font-size: 1rem;
   font-weight: bold;
   letter-spacing: 1px;
   cursor: pointer;
 }
-.btn-group .btn:hover {
-  background: #006dc7;
+.btn-group .btn-recode {
+  background: #4caf50;
 }
-.btn-group .btn-primary.active {
+.btn-group .btn-reset {
+  background: gray;
+}
+.btn-group .btn-stop {
   background: #e91e63;
 }
-.btn-group .btn-gray {
-  background: gray;
+.btn-group .btn-start {
+  background: #006dc7;
 }
 
 .recode {
@@ -107,6 +110,9 @@ main.recode-mode .recode {
   align-items: center;
   margin: 10px 0;
 }
+.recode ul li:nth-child(2n) {
+  background: rgba(255, 255, 255, 0.1);
+}
 .recode ul li .num {
   display: inline-block;
   text-align: center;
@@ -114,7 +120,7 @@ main.recode-mode .recode {
   height: 40px;
   line-height: 40px;
   border-radius: 50%;
-  background: #006dc7;
+  font-weight: bold;
 }
 .recode ul li .time-display {
   display: flex;
