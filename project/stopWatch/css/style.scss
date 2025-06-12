@@ -9,13 +9,14 @@
   -webkit-appearance: none;
   display: none;
 }
-$primary: #2196f3;
+$bg: #203763;
+$primary: #3862b0;
 $primary-dark: #006dc7;
 $gray: gray;
 $red: #e91e63;
 
 body {
-  background: $primary;
+  background: $bg;
   font-family: 'Outfit', sans-serif;
   color: #fff;
 }
