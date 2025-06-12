@@ -31,11 +31,7 @@ main.recode-mode {
 }
 main.recode-mode .recode {
   height: 100%;
-  max-height: 290px;
-}
-main.recode-mode .recode ul {
-  height: 100%;
-  overflow: auto;
+  max-height: 300px;
 }
 
 .stop-watch {
@@ -48,7 +44,7 @@ main.recode-mode .recode ul {
   width: 40px;
   text-align: center;
 }
-.stop-watch .colon {
+.stop-watch .separator {
   transform: translateY(-6px);
   padding: 0.5rem;
 }
@@ -78,37 +74,40 @@ main.recode-mode .recode ul {
 
 .recode {
   overflow: hidden;
-  transition: 1s;
+  transition: 1s 0.5s;
   height: 0;
   max-height: 0;
   width: 100%;
   max-width: 400px;
   margin-top: 20px;
 }
-.recode .num {
-  width: 40px;
-  text-align: center;
-}
-.recode span ~ span {
+.recode .col {
   flex: 1;
   text-align: center;
+}
+.recode .col:nth-child(1) {
+  flex: none;
+  width: 40px;
 }
 .recode .title {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #fff;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  box-sizing: border-box;
-  height: 30px;
+  height: 40px;
 }
-.recode li {
+.recode ul {
+  max-height: calc(100% - 40px);
+  overflow: auto;
+  border-bottom: 1px solid #fff;
+  border-top: 1px solid #fff;
+  box-sizing: border-box;
+}
+.recode ul li {
   list-style: none;
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
-.recode li .num {
+.recode ul li .num {
   display: inline-block;
   text-align: center;
   width: 40px;
@@ -116,4 +115,12 @@ main.recode-mode .recode ul {
   line-height: 40px;
   border-radius: 50%;
   background: #006dc7;
+}
+.recode ul li .time-display {
+  display: flex;
+  justify-content: center;
+}
+.recode ul li .time-display .group span {
+  display: inline-block;
+  width: 15px;
 }/*# sourceMappingURL=style.css.map */

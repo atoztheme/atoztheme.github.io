@@ -31,11 +31,7 @@ main {
     padding: 20px;
     .recode {
       height: 100%;
-      max-height: 290px;
-      ul {
-        height: 100%;
-        overflow: auto;
-      }
+      max-height: 300px;
     }
   }
 }
@@ -51,7 +47,7 @@ main {
       text-align: center;
     }
   }
-  .colon {
+  .separator {
     transform: translateY(-6px);
     padding: 0.5rem;
   }
@@ -86,42 +82,53 @@ main {
 
 .recode {
   overflow: hidden;
-  transition: 1s;
+  transition: 1s 0.5s;
   height: 0;
   max-height: 0;
   width: 100%;
   max-width: 400px;
   margin-top: 20px;
-  .num {
-    width: 40px;
-    text-align: center;
-  }
-  span ~ span {
+  .col {
     flex: 1;
     text-align: center;
+    &:nth-child(1) {
+      flex: none;
+      width: 40px;
+    }
   }
   .title {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #fff;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    box-sizing: border-box;
-    height: 30px;
+    height: 40px;
   }
-  li {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    .num {
-      display: inline-block;
-      text-align: center;
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
-      border-radius: 50%;
-      background: $primary-dark;
+  ul {
+    max-height: calc(100% - 40px);
+    overflow: auto;
+    border-bottom: 1px solid #fff;
+    border-top: 1px solid #fff;
+    box-sizing: border-box;
+    li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      .num {
+        display: inline-block;
+        text-align: center;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 50%;
+        background: $primary-dark;
+      }
+      .time-display {
+        display: flex;
+        justify-content: center;
+        .group span {
+          display: inline-block;
+          width: 15px;
+        }
+      }
     }
   }
 }

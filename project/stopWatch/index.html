@@ -13,23 +13,8 @@
   </head>
   <body>
     <div id="app" v-cloak>
-      <main :class="{'recode-mode': recodeList.length > 0}">
-        <div class="stop-watch">
-          <div class="group hours">
-            <span>{{currentTime.hours[0]}}</span>
-            <span>{{currentTime.hours[1]}}</span>
-          </div>
-          <div class="colon">:</div>
-          <div class="group minutes">
-            <span>{{currentTime.minutes[0]}}</span>
-            <span>{{currentTime.minutes[1]}}</span>
-          </div>
-          <div class="colon">:</div>
-          <div class="group seconds">
-            <span>{{currentTime.seconds[0]}}</span>
-            <span>{{currentTime.seconds[1]}}</span>
-          </div>
-        </div>
+      <main :class="{'recode-mode': isViewRecode}">
+        <time-display :time="totalRecode" :pad="pad" class="stop-watch"></time-display>
 
         <div class="btn-group">
           <button class="btn btn-gray" @click="toggleRecordReset">{{isStart ? 'RECORD' : 'RESET'}}</button>
@@ -39,16 +24,22 @@
         </div>
 
         <div class="recode">
-          <div v-if="recodeList.length" class="title">
-            <span class="num">NO</span>
-            <span class="interval-recode">INTERVAL</span>
-            <span class="total-recode">TOTAL</span>
+          <div v-if="isViewRecode" class="title">
+            <span class="col">NO</span>
+            <span class="col">INTERVAL</span>
+            <span class="col">TOTAL</span>
           </div>
-          <ul>
-            <li v-for="(recode, i) in recodeList.slice().reverse()">
-              <span class="num">{{pad(recodeList.length - i)}}</span>
-              <span class="interval-recode">{{ formatTime(recode.intervalRecode)}}</span>
-              <span class="total-recode">{{ formatTime(recode.totalRecode)}}</span>
+          <ul v-if="isViewRecode">
+            <li v-for="(recode, i) in reversedRecodeList" :key="recode.id">
+              <div class="col">
+                <span class="num">{{pad(recodeList.length - i)}}</span>
+              </div>
+              <div class="col">
+                <time-display :time="recode.intervalRecode" :pad="pad" class="interval-recode"></time-display>
+              </div>
+              <div class="col">
+                <time-display :time="recode.totalRecode" :pad="pad" class="total-recode"></time-display>
+              </div>
             </li>
           </ul>
         </div>
@@ -56,52 +47,67 @@
     </div>
 
     <script type="module">
-      const { createApp, onMounted, ref, computed } = Vue;
-      const pad = (n) => String(n).padStart(2, '0');
-      const formatTime = (time) => `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
+      import TimeDisplay from './TimeDisplay.js';
+      // 구조 분해 할당 : 객체/배열에서 값을 추출하여 새로운 변수 선언
+      const { createApp, onUnmounted, ref, computed } = Vue;
+      // 두자리 수 문자열 반환
+      const pad = (n, length = 2) => String(n).padStart(length, '0');
+      // 초, 밀리세컨즈 최대값 상수
+      const MAX_TIME = {
+        SECONDS: 59,
+        MILLISECONDS: 99
+      };
+      // 10ms마다
+      const TIMER_DELAY = 10;
 
       createApp({
+        components: { TimeDisplay },
         setup() {
           const isStart = ref(false);
-          const MAX_TIME = 59;
-          const INIT_TIME = { hours: 0, minutes: 0, seconds: 0 };
+          const INIT_TIME = { minutes: 0, seconds: 0, milliseconds: 0 };
+          // 스프레드 문법 : 새로운 객체를 생성하면서 기존 객체의 속성들을 그 새로운 객체에 복사
           const totalRecode = ref({ ...INIT_TIME });
           const intervalRecode = ref({ ...INIT_TIME });
           const recodeList = ref([]);
-          let timer;
+          let timer = null;
 
-          const currentTime = computed(() => {
-            return {
-              hours: pad(totalRecode.value.hours).split(''),
-              minutes: pad(totalRecode.value.minutes).split(''),
-              seconds: pad(totalRecode.value.seconds).split('')
-            };
+          // 기록 역순 정렬
+          const reversedRecodeList = computed(() => {
+            return recodeList.value.slice().reverse();
+          });
+
+          // 레코드 표시 여부
+          const isViewRecode = computed(() => {
+            return recodeList.value.length > 0;
           });
 
           // 타이머 시작
           const startTimer = () => {
             timer = setInterval(() => {
-              intervalRecode.value.seconds++;
-              totalRecode.value.seconds++;
-              if (totalRecode.value.seconds > MAX_TIME) {
+              intervalRecode.value.milliseconds++;
+              totalRecode.value.milliseconds++;
+              // ms가 100이되면 초 증가
+              if (totalRecode.value.milliseconds > MAX_TIME.MILLISECONDS) {
+                intervalRecode.value.milliseconds = 0;
+                intervalRecode.value.seconds++;
+                totalRecode.value.milliseconds = 0;
+                totalRecode.value.seconds++;
+              }
+              // 60초가 되면 분 증가
+              if (totalRecode.value.seconds > MAX_TIME.SECONDS) {
                 intervalRecode.value.seconds = 0;
                 intervalRecode.value.minutes++;
                 totalRecode.value.seconds = 0;
                 totalRecode.value.minutes++;
               }
-              if (totalRecode.value.minutes > MAX_TIME) {
-                intervalRecode.value.minutes = 0;
-                intervalRecode.value.hours++;
-                totalRecode.value.minutes = 0;
-                totalRecode.value.hours++;
-              }
-            }, 1000);
+            }, TIMER_DELAY);
           };
 
           // 타이머 시작 / 멈춤
           const toggleTimer = () => {
             if (isStart.value) {
               clearInterval(timer);
+              timer = null;
             } else {
               startTimer();
             }
@@ -111,26 +117,39 @@
           // 타이머 기록 / 초기화
           const toggleRecordReset = () => {
             if (isStart.value) {
+              // 타이머가 실행 중일 때 기록
               recodeList.value.push({
+                // 고유 ID 추가 (성능 최적화 및 key 속성 사용 위함)
+                id: Date.now() + Math.random(),
                 intervalRecode: { ...intervalRecode.value },
                 totalRecode: { ...totalRecode.value }
               });
+              // 구간 기록 초기화
               intervalRecode.value = { ...INIT_TIME };
             } else {
+              // 타이머가 멈춰있을 때 초기화
               intervalRecode.value = { ...INIT_TIME };
               totalRecode.value = { ...INIT_TIME };
               recodeList.value = [];
             }
           };
 
+          // 컴포넌트 언마운트 시 타이머 정리 (메모리 누수 방지)
+          onUnmounted(() => {
+            if (timer) {
+              clearInterval(timer);
+            }
+          });
+
           return {
-            currentTime,
+            totalRecode,
             recodeList,
+            reversedRecodeList,
+            isViewRecode,
             isStart,
             toggleRecordReset,
             toggleTimer,
-            pad,
-            formatTime
+            pad
           };
         }
       }).mount('#app');
