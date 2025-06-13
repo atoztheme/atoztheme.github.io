@@ -10,9 +10,51 @@
     <link rel="stylesheet" href="css/style.css" />
     <!-- vue -->
     <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.js"></script>
+    <style>
+      .progress-circle {
+        position: relative;
+        width: 150px;
+        height: 150px;
+      }
+      .progress-circle svg {
+        transform: rotate(-90deg); /* 0도를 위로 오게 설정 */
+      }
+      .progress-circle circle {
+        /* 1분 동안 100단계로 업데이트되므로, 각 단계의 전환은 매우 짧게 유지하여 부드러움을 극대화 */
+        transition: stroke-dasharray 0.01s linear;
+      }
+      .progress-circle .bg-circle {
+        stroke: #e0e0e0;
+        stroke-width: 10;
+        fill: none;
+      }
+      .progress-circle .progress-arc {
+        stroke: #4caf50; /* 진행 색상 */
+        stroke-width: 10;
+        fill: none;
+        stroke-linecap: round;
+      }
+      .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #333;
+      }
+    </style>
   </head>
   <body>
     <div id="app" v-cloak>
+      <!-- <div class="progress-circle">
+        <svg width="150" height="150" viewBox="0 0 100 100">
+          <circle class="bg-circle" cx="50" cy="50" r="45"></circle>
+          <circle class="progress-arc" cx="50" cy="50" r="45" :style="progressStyle"></circle>
+        </svg>
+        <span class="progress-text">{{ Math.round(currentProgress) }}%</span>
+      </div> -->
+
       <main :class="{'recode-mode': isViewRecode}" :style="backgroundStyle">
         <time-display :time="totalRecode" :pad="pad" class="stop-watch"></time-display>
 
@@ -85,8 +127,10 @@
           const recodeList = ref([]);
           const angle = ref(0);
           const bgColor = ['#203763', '#006dc7'];
+          const currentProgress = ref(0);
           let animationFrame = null;
           let timer = null;
+          let progressTimer = null;
 
           // 기록 역순 정렬
           const reversedRecodeList = computed(() => {
@@ -122,6 +166,43 @@
             animationFrame = null;
           };
 
+          // 프로그레스 스타일
+          const progressStyle = computed(() => {
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (currentProgress.value / 100) * circumference;
+
+            return {
+              strokeDasharray: `${circumference} ${circumference}`,
+              strokeDashoffset: offset
+            };
+          });
+
+          // 프로그레스 시작
+          const startProgress = () => {
+            // 1분(60초 = 60000ms) 동안 0%에서 100%까지 진행.
+            // 100단계로 나누면 각 단계는 60000ms / 100 = 600ms 마다 1% 업데이트
+            // 더 부드러운 애니메이션을 위해 1단계가 아닌 더 작은 단위로 쪼개서 업데이트합니다.
+            // 예를 들어 0.1%씩 업데이트하고 싶다면 600ms / 10 = 60ms마다 업데이트
+            // 0.1%씩 업데이트하면 총 1000번 업데이트 (100% / 0.1% = 1000)
+            // 60000ms / 1000 = 60ms
+            const totalDuration = 60 * 1000; // 1분 = 60000ms
+            const updateInterval = 60; // 60ms마다 업데이트
+            const incrementPerInterval = 100 / (totalDuration / updateInterval); // 한 번에 증가할 %
+
+            progressTimer = setInterval(() => {
+              currentProgress.value += incrementPerInterval;
+              if (currentProgress.value >= 100) {
+                currentProgress.value = 0; // 100% 도달 시 다시 시작
+              }
+            }, updateInterval);
+          };
+
+          // 프로그레스 정지
+          const stopProgress = () => {
+            clearInterval(progressTimer);
+          };
+
           // 타이머 시작
           const startTimer = () => {
             timer = setInterval(() => {
@@ -149,10 +230,12 @@
             if (isStart.value) {
               clearInterval(timer);
               stopAnimation();
+              stopProgress();
               timer = null;
             } else {
               startTimer();
               startAnimation();
+              startProgress();
             }
             isStart.value = !isStart.value;
           };
@@ -174,6 +257,7 @@
               intervalRecode.value = { ...INIT_TIME };
               totalRecode.value = { ...INIT_TIME };
               recodeList.value = [];
+              currentProgress.value = 0;
             }
           };
 
@@ -194,7 +278,9 @@
             isStart,
             toggleRecordReset,
             toggleTimer,
-            pad
+            pad,
+            currentProgress,
+            progressStyle
           };
         }
       }).mount('#app');
